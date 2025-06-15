@@ -1,0 +1,26 @@
+#runtime-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    color: #999;
+    margin-top: 10px;
+    font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+  }
+  
+  #runtime-box i {
+    margin-right: 6px;
+    color: #f39c12;
+    animation: rotateClock 10s linear infinite;
+  }
+  
+  @keyframes rotateClock {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  #runtime {
+    font-weight: bold;
+    color: #555;
+  }
+  
