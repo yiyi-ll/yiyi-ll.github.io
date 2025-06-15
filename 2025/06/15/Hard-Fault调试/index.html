@@ -19,34 +19,28 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"yiyi-ll.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"giscus","storage":true,"lazyload":false,"nav":null,"activeClass":"giscus"},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
 
-    <meta name="description" content="0. 问题现象使用Microchip Studio和ASF4.0搭建ATSAMV71Q21B开发板，使用printf打印float类型时，无法输出 1. 软硬件平台 MCU: ATSAMV71Q21B IDE: Microchip Studio 7.0 软件架构: ASF4.0 编译器: arm-none-eabi-gcc 14.2.Rel1">
+    <meta name="description" content="重定义 HardFault_Handler函数，并在函数中调用 hard_fault_handler_c函数。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="ATSAMV71Q21B基于Microchip Studio以及ASF4.0架构使用printf打印float类型">
-<meta property="og:url" content="https://yiyi-ll.github.io/2025/06/15/%E4%BD%BF%E7%94%A8printf%E6%89%93%E5%8D%B0float%E7%B1%BB%E5%9E%8B/index.html">
+<meta property="og:title" content="使用VSCode开发MCU，FreeRTOS进Hard_Fault调试">
+<meta property="og:url" content="https://yiyi-ll.github.io/2025/06/15/Hard-Fault%E8%B0%83%E8%AF%95/index.html">
 <meta property="og:site_name" content="yiyi_ll">
-<meta property="og:description" content="0. 问题现象使用Microchip Studio和ASF4.0搭建ATSAMV71Q21B开发板，使用printf打印float类型时，无法输出 1. 软硬件平台 MCU: ATSAMV71Q21B IDE: Microchip Studio 7.0 软件架构: ASF4.0 编译器: arm-none-eabi-gcc 14.2.Rel1">
+<meta property="og:description" content="重定义 HardFault_Handler函数，并在函数中调用 hard_fault_handler_c函数。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://yiyi-ll.github.io/2025/06/15/%E4%BD%BF%E7%94%A8printf%E6%89%93%E5%8D%B0float%E7%B1%BB%E5%9E%8B/image.png">
-<meta property="og:image" content="https://yiyi-ll.github.io/2025/06/15/%E4%BD%BF%E7%94%A8printf%E6%89%93%E5%8D%B0float%E7%B1%BB%E5%9E%8B/image-1.png">
-<meta property="og:image" content="https://yiyi-ll.github.io/2025/06/15/%E4%BD%BF%E7%94%A8printf%E6%89%93%E5%8D%B0float%E7%B1%BB%E5%9E%8B/image-2.png">
-<meta property="og:image" content="https://yiyi-ll.github.io/2025/06/15/%E4%BD%BF%E7%94%A8printf%E6%89%93%E5%8D%B0float%E7%B1%BB%E5%9E%8B/image-3.png">
-<meta property="og:image" content="https://yiyi-ll.github.io/2025/06/15/%E4%BD%BF%E7%94%A8printf%E6%89%93%E5%8D%B0float%E7%B1%BB%E5%9E%8B/image-4.png">
-<meta property="article:published_time" content="2025-06-15T14:07:37.000Z">
-<meta property="article:modified_time" content="2025-06-15T14:29:00.077Z">
+<meta property="article:published_time" content="2025-06-15T15:01:40.000Z">
+<meta property="article:modified_time" content="2025-06-15T15:12:53.313Z">
 <meta property="article:author" content="yiyi_ll">
 <meta property="article:tag" content="mcu">
-<meta property="article:tag" content="MicroChip">
+<meta property="article:tag" content="VsCode">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://yiyi-ll.github.io/2025/06/15/%E4%BD%BF%E7%94%A8printf%E6%89%93%E5%8D%B0float%E7%B1%BB%E5%9E%8B/image.png">
 
 
-<link rel="canonical" href="https://yiyi-ll.github.io/2025/06/15/%E4%BD%BF%E7%94%A8printf%E6%89%93%E5%8D%B0float%E7%B1%BB%E5%9E%8B/">
+<link rel="canonical" href="https://yiyi-ll.github.io/2025/06/15/Hard-Fault%E8%B0%83%E8%AF%95/">
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://yiyi-ll.github.io/2025/06/15/%E4%BD%BF%E7%94%A8printf%E6%89%93%E5%8D%B0float%E7%B1%BB%E5%9E%8B/","path":"2025/06/15/使用printf打印float类型/","title":"ATSAMV71Q21B基于Microchip Studio以及ASF4.0架构使用printf打印float类型"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://yiyi-ll.github.io/2025/06/15/Hard-Fault%E8%B0%83%E8%AF%95/","path":"2025/06/15/Hard-Fault调试/","title":"使用VSCode开发MCU，FreeRTOS进Hard_Fault调试"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>ATSAMV71Q21B基于Microchip Studio以及ASF4.0架构使用printf打印float类型 | yiyi_ll</title>
+<title>使用VSCode开发MCU，FreeRTOS进Hard_Fault调试 | yiyi_ll</title>
   
 
 
@@ -136,7 +130,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0-%E9%97%AE%E9%A2%98%E7%8E%B0%E8%B1%A1"><span class="nav-number">1.</span> <span class="nav-text">0. 问题现象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E8%BD%AF%E7%A1%AC%E4%BB%B6%E5%B9%B3%E5%8F%B0"><span class="nav-number">2.</span> <span class="nav-text">1. 软硬件平台</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E7%BC%96%E8%AF%91%E5%99%A8%E9%93%BE%E6%8E%A5-u-printf-float"><span class="nav-number">3.</span> <span class="nav-text">2. 编译器链接-u _printf_float</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E6%B7%BB%E5%8A%A0-u-printf-float"><span class="nav-number">4.</span> <span class="nav-text">3.添加-u _printf_float</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E6%89%93%E5%8D%B0%E6%B5%8B%E8%AF%95%EF%BC%8C%E4%B8%B2%E5%8F%A3%E8%BE%93%E5%87%BAfloat%E7%B1%BB%E5%9E%8B%E6%95%B0%E6%8D%AE"><span class="nav-number">5.</span> <span class="nav-text">4.打印测试，串口输出float类型数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E8%99%BD%E7%84%B6%E7%BC%96%E8%AF%91%E4%BD%BF%E7%94%A8%E4%BA%86-specs-nano-specs%EF%BC%8C%E4%BD%86%E6%98%AF%E7%9B%AE%E5%89%8D%E6%9D%A5%EF%BC%8C%E6%96%B0%E7%89%88%E7%9A%84%E7%B2%BE%E7%AE%80%E5%BA%93%E5%86%85%E9%83%A8%E5%B9%B6%E9%9D%9E%E5%AE%8C%E5%85%A8%E5%89%A5%E7%A6%BB%E4%BA%86%E6%B5%AE%E7%82%B9%E6%89%93%E5%8D%B0%E7%9A%84%E4%BB%A3%E7%A0%81%EF%BC%8C%E8%80%8C%E6%98%AF%E9%80%9A%E8%BF%87%E9%93%BE%E6%8E%A5%E5%99%A8%E4%BC%98%E5%8C%96%E9%BB%98%E8%AE%A4%E4%B8%8D%E5%8C%85%E5%90%AB%E8%BF%99%E4%BA%9B%E4%BB%A3%E7%A0%81%E3%80%82%E5%BD%93%E5%8A%A0%E4%B8%8A-u-printf-float-%E5%90%8E%EF%BC%8C%E5%BC%BA%E5%88%B6%E8%A6%81%E6%B1%82%E9%93%BE%E6%8E%A5%E5%99%A8%E4%BF%9D%E7%95%99-float-%E6%89%93%E5%8D%B0%E7%9B%B8%E5%85%B3%E7%9A%84%E7%AC%A6%E5%8F%B7%EF%BC%8C%E4%BB%8E%E8%80%8C%E4%BD%BF%E5%BE%97-printf-%E8%83%BD%E5%A4%9F%E8%BE%93%E5%87%BA-float-%E7%B1%BB%E5%9E%8B%E3%80%82"><span class="nav-number">6.</span> <span class="nav-text">5.虽然编译使用了-specs&#x3D;nano.specs，但是目前来，新版的精简库内部并非完全剥离了浮点打印的代码，而是通过链接器优化默认不包含这些代码。当加上 -u _printf_float 后，强制要求链接器保留 float 打印相关的符号，从而使得 printf 能够输出 float 类型。</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%87%8D%E5%AE%9A%E4%B9%89-HardFault-Handler%E5%87%BD%E6%95%B0%EF%BC%8C%E5%B9%B6%E5%9C%A8%E5%87%BD%E6%95%B0%E4%B8%AD%E8%B0%83%E7%94%A8-hard-fault-handler-c%E5%87%BD%E6%95%B0%E3%80%82"><span class="nav-number">1.</span> <span class="nav-text">重定义 HardFault_Handler函数，并在函数中调用 hard_fault_handler_c函数。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8-hard-fault-handler-c%E5%87%BD%E6%95%B0%E4%B8%AD%EF%BC%8C%E8%B0%83%E7%94%A8-xTaskGetCurrentTaskHandle%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8DTask%E7%9A%84handle%EF%BC%8C%E5%B9%B6%E8%B0%83%E7%94%A8-pcTaskGetName%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8DTask%E7%9A%84Name%EF%BC%8C%E5%B9%B6%E8%8E%B7%E5%8F%96%E4%BF%9D%E5%AD%98%E7%9A%84%E5%AF%84%E5%AD%98%E5%99%A8%E7%9A%84%E5%80%BC%E3%80%82"><span class="nav-number">2.</span> <span class="nav-text">在 hard_fault_handler_c函数中，调用 xTaskGetCurrentTaskHandle获取当前Task的handle，并调用 pcTaskGetName获取当前Task的Name，并获取保存的寄存器的值。</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -196,7 +190,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://yiyi-ll.github.io/2025/06/15/%E4%BD%BF%E7%94%A8printf%E6%89%93%E5%8D%B0float%E7%B1%BB%E5%9E%8B/">
+    <link itemprop="mainEntityOfPage" href="https://yiyi-ll.github.io/2025/06/15/Hard-Fault%E8%B0%83%E8%AF%95/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -209,12 +203,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="ATSAMV71Q21B基于Microchip Studio以及ASF4.0架构使用printf打印float类型 | yiyi_ll">
+      <meta itemprop="name" content="使用VSCode开发MCU，FreeRTOS进Hard_Fault调试 | yiyi_ll">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          ATSAMV71Q21B基于Microchip Studio以及ASF4.0架构使用printf打印float类型
+          使用VSCode开发MCU，FreeRTOS进Hard_Fault调试
         </h1>
 
         <div class="post-meta-container">
@@ -226,7 +220,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2025-06-15 22:07:37 / 修改时间：22:29:00" itemprop="dateCreated datePublished" datetime="2025-06-15T22:07:37+08:00">2025-06-15</time>
+      <time title="创建时间：2025-06-15 23:01:40 / 修改时间：23:12:53" itemprop="dateCreated datePublished" datetime="2025-06-15T23:01:40+08:00">2025-06-15</time>
     </span>
 
   
@@ -243,7 +237,7 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>192</span>
+      <span>242</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
@@ -260,28 +254,11 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><h2 id="0-问题现象"><a href="#0-问题现象" class="headerlink" title="0. 问题现象"></a>0. 问题现象</h2><p>使用Microchip Studio和ASF4.0搭建ATSAMV71Q21B开发板，使用printf打印float类型时，无法输出</p>
-<h2 id="1-软硬件平台"><a href="#1-软硬件平台" class="headerlink" title="1. 软硬件平台"></a>1. 软硬件平台</h2><ul>
-<li>MCU: ATSAMV71Q21B</li>
-<li>IDE: Microchip Studio 7.0</li>
-<li>软件架构: ASF4.0</li>
-<li>编译器: arm-none-eabi-gcc 14.2.Rel1</li>
-</ul>
-<span id="more"></span>
+    <div class="post-body" itemprop="articleBody"><font size = 4>
 
+<h2 id="重定义-HardFault-Handler函数，并在函数中调用-hard-fault-handler-c函数。"><a href="#重定义-HardFault-Handler函数，并在函数中调用-hard-fault-handler-c函数。" class="headerlink" title="重定义 HardFault_Handler函数，并在函数中调用 hard_fault_handler_c函数。"></a>重定义 HardFault_Handler函数，并在函数中调用 hard_fault_handler_c函数。</h2><span id="more"></span>
 
-<h2 id="2-编译器链接-u-printf-float"><a href="#2-编译器链接-u-printf-float" class="headerlink" title="2. 编译器链接-u _printf_float"></a>2. 编译器链接-u _printf_float</h2><img src="/2025/06/15/%E4%BD%BF%E7%94%A8printf%E6%89%93%E5%8D%B0float%E7%B1%BB%E5%9E%8B/image.png" class="">
-
-
-<h2 id="3-添加-u-printf-float"><a href="#3-添加-u-printf-float" class="headerlink" title="3.添加-u _printf_float"></a>3.添加-u _printf_float</h2><img src="/2025/06/15/%E4%BD%BF%E7%94%A8printf%E6%89%93%E5%8D%B0float%E7%B1%BB%E5%9E%8B/image-1.png" class="">
-
-
-<h2 id="4-打印测试，串口输出float类型数据"><a href="#4-打印测试，串口输出float类型数据" class="headerlink" title="4.打印测试，串口输出float类型数据"></a>4.打印测试，串口输出float类型数据</h2><img src="/2025/06/15/%E4%BD%BF%E7%94%A8printf%E6%89%93%E5%8D%B0float%E7%B1%BB%E5%9E%8B/image-2.png" class="">
-
-<img src="/2025/06/15/%E4%BD%BF%E7%94%A8printf%E6%89%93%E5%8D%B0float%E7%B1%BB%E5%9E%8B/image-3.png" class="">
-
-
-<h2 id="5-虽然编译使用了-specs-nano-specs，但是目前来，新版的精简库内部并非完全剥离了浮点打印的代码，而是通过链接器优化默认不包含这些代码。当加上-u-printf-float-后，强制要求链接器保留-float-打印相关的符号，从而使得-printf-能够输出-float-类型。"><a href="#5-虽然编译使用了-specs-nano-specs，但是目前来，新版的精简库内部并非完全剥离了浮点打印的代码，而是通过链接器优化默认不包含这些代码。当加上-u-printf-float-后，强制要求链接器保留-float-打印相关的符号，从而使得-printf-能够输出-float-类型。" class="headerlink" title="5.虽然编译使用了-specs&#x3D;nano.specs，但是目前来，新版的精简库内部并非完全剥离了浮点打印的代码，而是通过链接器优化默认不包含这些代码。当加上 -u _printf_float 后，强制要求链接器保留 float 打印相关的符号，从而使得 printf 能够输出 float 类型。"></a>5.虽然编译使用了-specs&#x3D;nano.specs，但是目前来，新版的精简库内部并非完全剥离了浮点打印的代码，而是通过链接器优化默认不包含这些代码。当加上 -u _printf_float 后，强制要求链接器保留 float 打印相关的符号，从而使得 printf 能够输出 float 类型。</h2><img src="/2025/06/15/%E4%BD%BF%E7%94%A8printf%E6%89%93%E5%8D%B0float%E7%B1%BB%E5%9E%8B/image-4.png" class="">
+<h2 id="在-hard-fault-handler-c函数中，调用-xTaskGetCurrentTaskHandle获取当前Task的handle，并调用-pcTaskGetName获取当前Task的Name，并获取保存的寄存器的值。"><a href="#在-hard-fault-handler-c函数中，调用-xTaskGetCurrentTaskHandle获取当前Task的handle，并调用-pcTaskGetName获取当前Task的Name，并获取保存的寄存器的值。" class="headerlink" title="在 hard_fault_handler_c函数中，调用 xTaskGetCurrentTaskHandle获取当前Task的handle，并调用 pcTaskGetName获取当前Task的Name，并获取保存的寄存器的值。"></a>在 hard_fault_handler_c函数中，调用 xTaskGetCurrentTaskHandle获取当前Task的handle，并调用 pcTaskGetName获取当前Task的Name，并获取保存的寄存器的值。</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 声明捕获函数</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">hard_fault_handler_c</span><span class="params">(<span class="type">uint32_t</span> *hardfault_args)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 重定义 HardFault_Handler</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">HardFault_Handler</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    __asm <span class="title function_">volatile</span><span class="params">(</span></span><br><span class="line"><span class="params">    <span class="string">&quot;TST LR, #4           \n&quot;</span>   <span class="comment">// 检查使用 MSP 或 PSP 堆栈指针</span></span></span><br><span class="line"><span class="params">    <span class="string">&quot;ITE EQ               \n&quot;</span></span></span><br><span class="line"><span class="params">    <span class="string">&quot;MRSEQ R0, MSP        \n&quot;</span>   <span class="comment">// 如果等于 0，使用 MSP</span></span></span><br><span class="line"><span class="params">    <span class="string">&quot;MRSNE R0, PSP        \n&quot;</span>   <span class="comment">// 如果不等于 0，使用 PSP</span></span></span><br><span class="line"><span class="params">    <span class="string">&quot;B hard_fault_handler_c \n&quot;</span> <span class="comment">// 跳转到 C 语言处理函数</span></span></span><br><span class="line"><span class="params">    )</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 捕获堆栈帧信息的 C 语言处理函数</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">hard_fault_handler_c</span><span class="params">(<span class="type">uint32_t</span> *hardfault_args)</span></span><br><span class="line">&#123;</span><br><span class="line">    TaskHandle_t xHandle = xTaskGetCurrentTaskHandle();</span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *pcTaskName = pcTaskGetName(xHandle);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将任务名存储到内存中供调试</span></span><br><span class="line">    <span class="keyword">volatile</span> <span class="type">char</span> *pTaskNameMemory = (<span class="type">char</span> *)<span class="number">0x20401000</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; pcTaskName[i] != <span class="string">&#x27;\0&#x27;</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        pTaskNameMemory[i] = pcTaskName[i];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 提取保存的寄存器值</span></span><br><span class="line">    <span class="type">uint32_t</span> stacked_r0  = hardfault_args[<span class="number">0</span>];</span><br><span class="line">    <span class="type">uint32_t</span> stacked_r1  = hardfault_args[<span class="number">1</span>];</span><br><span class="line">    <span class="type">uint32_t</span> stacked_r2  = hardfault_args[<span class="number">2</span>];</span><br><span class="line">    <span class="type">uint32_t</span> stacked_r3  = hardfault_args[<span class="number">3</span>];</span><br><span class="line">    <span class="type">uint32_t</span> stacked_r12 = hardfault_args[<span class="number">4</span>];</span><br><span class="line">    <span class="type">uint32_t</span> stacked_lr  = hardfault_args[<span class="number">5</span>];</span><br><span class="line">    <span class="type">uint32_t</span> stacked_pc  = hardfault_args[<span class="number">6</span>];</span><br><span class="line">    <span class="type">uint32_t</span> stacked_psr = hardfault_args[<span class="number">7</span>];</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 陷入死循环便于调试</span></span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
     </div>
 
@@ -292,21 +269,18 @@
     <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/mcu/" rel="tag"># mcu</a>
-              <a href="/tags/MicroChip/" rel="tag"># MicroChip</a>
+              <a href="/tags/VsCode/" rel="tag"># VsCode</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2025/04/14/pwm%E6%AD%BB%E5%8C%BA%E6%97%B6%E9%97%B4%E9%85%8D%E7%BD%AE/" rel="prev" title="基于Microchip Studio的ASF4.0配置PWM死区时间">
-                  <i class="fa fa-angle-left"></i> 基于Microchip Studio的ASF4.0配置PWM死区时间
+                <a href="/2025/06/15/%E4%BD%BF%E7%94%A8printf%E6%89%93%E5%8D%B0float%E7%B1%BB%E5%9E%8B/" rel="prev" title="ATSAMV71Q21B基于Microchip Studio以及ASF4.0架构使用printf打印float类型">
+                  <i class="fa fa-angle-left"></i> ATSAMV71Q21B基于Microchip Studio以及ASF4.0架构使用printf打印float类型
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2025/06/15/Hard-Fault%E8%B0%83%E8%AF%95/" rel="next" title="使用VSCode开发MCU，FreeRTOS进Hard_Fault调试">
-                  使用VSCode开发MCU，FreeRTOS进Hard_Fault调试 <i class="fa fa-angle-right"></i>
-                </a>
             </div>
           </div>
     </footer>
