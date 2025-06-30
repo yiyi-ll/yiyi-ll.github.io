@@ -139,13 +139,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-count">5</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -176,6 +176,106 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://yiyi-ll.github.io/2025/06/30/yocto%E7%BC%96%E8%AF%91ros2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yiyi_ll">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yiyi_ll">
+      <meta itemprop="description" content="非专业程序员，瞎折腾爱好者">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | yiyi_ll">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/06/30/yocto%E7%BC%96%E8%AF%91ros2/" class="post-title-link" itemprop="url">Yocto环境下编译ROS2、自定义layer添加ros代码以及ament_cmake和No module name 'ament_package'问题解决</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-06-30 22:13:43 / 修改时间：22:41:39" itemprop="dateCreated datePublished" datetime="2025-06-30T22:13:43+08:00">2025-06-30</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>847</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>3 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="0-最近想在A核上搭建一套ros环境，然后再配合MCU实现一些小功能"><a href="#0-最近想在A核上搭建一套ros环境，然后再配合MCU实现一些小功能" class="headerlink" title="0. 最近想在A核上搭建一套ros环境，然后再配合MCU实现一些小功能"></a>0. 最近想在A核上搭建一套ros环境，然后再配合MCU实现一些小功能</h2><h2 id="1-Yocto编译ROS2"><a href="#1-Yocto编译ROS2" class="headerlink" title="1. Yocto编译ROS2"></a>1. Yocto编译ROS2</h2><h3 id="a-添加meta层"><a href="#a-添加meta层" class="headerlink" title="a. 添加meta层"></a>a. 添加meta层</h3><p>将需要的依赖layer添加到build&#x2F;conf&#x2F;bblayers.conf中</p>
+<p>meta-oe meta-python meta-ros-common meta-ros2 meta-ros2-humble</p>
+<img src="/2025/06/30/yocto%E7%BC%96%E8%AF%91ros2/image.png" class="">
+
+<img src="/2025/06/30/yocto%E7%BC%96%E8%AF%91ros2/image-1.png" class="">
+
+<img src="/2025/06/30/yocto%E7%BC%96%E8%AF%91ros2/image-2.png" class="">
+
+<img src="/2025/06/30/yocto%E7%BC%96%E8%AF%91ros2/image-3.png" class="">
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2025/06/30/yocto%E7%BC%96%E8%AF%91ros2/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -405,9 +505,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2025-04-14 21:36:52 / 修改时间：21:41:13" itemprop="dateCreated datePublished" datetime="2025-04-14T21:36:52+08:00">2025-04-14</time>
+      <time title="创建时间：2025-04-14 21:36:52" itemprop="dateCreated datePublished" datetime="2025-04-14T21:36:52+08:00">2025-04-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-06-30 22:35:28" itemprop="dateModified" datetime="2025-06-30T22:35:28+08:00">2025-06-30</time>
     </span>
 
   
@@ -417,7 +523,7 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>221</span>
+      <span>197</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
@@ -435,14 +541,11 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <font size = 4>
-
-<h2 id="0-软硬件平台"><a href="#0-软硬件平台" class="headerlink" title="0. 软硬件平台"></a>0. 软硬件平台</h2><ul>
+          <h2 id="0-软硬件平台"><a href="#0-软硬件平台" class="headerlink" title="0. 软硬件平台"></a>0. 软硬件平台</h2><ul>
 <li>MCU: ATSAMV71Q21B</li>
 <li>IDE: Microchip Studio 7.0</li>
 <li>软件架构: ASF4.0</li>
 </ul>
-<h2 id="1-Microchip-Studio的ASF4-0通过Atmel-Start配置界面不支持配置死区时间，需要通过代码配置寄存器来配置死区时间"><a href="#1-Microchip-Studio的ASF4-0通过Atmel-Start配置界面不支持配置死区时间，需要通过代码配置寄存器来配置死区时间" class="headerlink" title="1. Microchip Studio的ASF4.0通过Atmel Start配置界面不支持配置死区时间，需要通过代码配置寄存器来配置死区时间"></a>1. Microchip Studio的ASF4.0通过Atmel Start配置界面不支持配置死区时间，需要通过代码配置寄存器来配置死区时间</h2><h2 id="2-通过芯片手册可以知道，死区时间发生器需要通过PWM-Channel-Mode-Register的DTE位配置位1来使能，通过PWM-Channel-Dead-Time-Register寄存器的DTH和DTL来调整死区时间"><a href="#2-通过芯片手册可以知道，死区时间发生器需要通过PWM-Channel-Mode-Register的DTE位配置位1来使能，通过PWM-Channel-Dead-Time-Register寄存器的DTH和DTL来调整死区时间" class="headerlink" title="2. 通过芯片手册可以知道，死区时间发生器需要通过PWM Channel Mode Register的DTE位配置位1来使能，通过PWM Channel Dead Time Register寄存器的DTH和DTL来调整死区时间"></a>2. 通过芯片手册可以知道，死区时间发生器需要通过PWM Channel Mode Register的DTE位配置位1来使能，通过PWM Channel Dead Time Register寄存器的DTH和DTL来调整死区时间</h2>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2025/04/14/pwm%E6%AD%BB%E5%8C%BA%E6%97%B6%E9%97%B4%E9%85%8D%E7%BD%AE/#more" rel="contents">
@@ -600,13 +703,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">1k</span>
+    <span title="站点总字数">2k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">5 分钟</span>
+    <span title="站点阅读时长">8 分钟</span>
   </span>
 </div>
 <div class="busuanzi-count">
