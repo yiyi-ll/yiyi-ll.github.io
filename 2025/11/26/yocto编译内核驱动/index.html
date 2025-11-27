@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"yiyi-ll.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"giscus","storage":true,"lazyload":false,"nav":null,"activeClass":"giscus"},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="0. 内核模块编译方法(1) 基于内核树在源码外编译模块(2) 内核源码内编译模块">
+<meta property="og:type" content="article">
+<meta property="og:title" content="yocto编译内核驱动">
+<meta property="og:url" content="https://yiyi-ll.github.io/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/index.html">
+<meta property="og:site_name" content="yiyi_ll">
+<meta property="og:description" content="0. 内核模块编译方法(1) 基于内核树在源码外编译模块(2) 内核源码内编译模块">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://yiyi-ll.github.io/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image.png">
+<meta property="og:image" content="https://yiyi-ll.github.io/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-18.png">
+<meta property="og:image" content="https://yiyi-ll.github.io/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-19.png">
+<meta property="og:image" content="https://yiyi-ll.github.io/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-20.png">
+<meta property="og:image" content="https://yiyi-ll.github.io/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-17.png">
+<meta property="og:image" content="https://yiyi-ll.github.io/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-1.png">
+<meta property="og:image" content="https://yiyi-ll.github.io/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-2.png">
+<meta property="og:image" content="https://yiyi-ll.github.io/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-3.png">
+<meta property="og:image" content="https://yiyi-ll.github.io/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-4.png">
+<meta property="og:image" content="https://yiyi-ll.github.io/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-5.png">
+<meta property="og:image" content="https://yiyi-ll.github.io/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-6.png">
+<meta property="og:image" content="https://yiyi-ll.github.io/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-7.png">
+<meta property="og:image" content="https://yiyi-ll.github.io/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-8.png">
+<meta property="og:image" content="https://yiyi-ll.github.io/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-9.png">
+<meta property="og:image" content="https://yiyi-ll.github.io/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-10.png">
+<meta property="og:image" content="https://yiyi-ll.github.io/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-11.png">
+<meta property="og:image" content="https://yiyi-ll.github.io/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-12.png">
+<meta property="og:image" content="https://yiyi-ll.github.io/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-13.png">
+<meta property="og:image" content="https://yiyi-ll.github.io/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-14.png">
+<meta property="og:image" content="https://yiyi-ll.github.io/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-15.png">
+<meta property="og:image" content="https://yiyi-ll.github.io/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-16.png">
+<meta property="article:published_time" content="2025-11-26T10:33:04.000Z">
+<meta property="article:modified_time" content="2025-11-27T11:33:09.804Z">
+<meta property="article:author" content="yiyi_ll">
+<meta property="article:tag" content="yocto">
+<meta property="article:tag" content="linux kernel">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://yiyi-ll.github.io/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image.png">
+
+
+<link rel="canonical" href="https://yiyi-ll.github.io/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://yiyi-ll.github.io/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/","path":"2025/11/26/yocto编译内核驱动/","title":"yocto编译内核驱动"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>yocto编译内核驱动 | yiyi_ll</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">yiyi_ll</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#0-%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97%E7%BC%96%E8%AF%91%E6%96%B9%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">0. 内核模块编译方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%9F%BA%E4%BA%8E%E5%86%85%E6%A0%B8%E6%A0%91%E5%9C%A8%E6%BA%90%E7%A0%81%E5%A4%96%E7%BC%96%E8%AF%91%E6%A8%A1%E5%9D%97"><span class="nav-number">1.1.</span> <span class="nav-text">(1) 基于内核树在源码外编译模块</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81%E5%86%85%E7%BC%96%E8%AF%91%E6%A8%A1%E5%9D%97"><span class="nav-number">1.2.</span> <span class="nav-text">(2) 内核源码内编译模块</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%9F%BA%E4%BA%8E%E5%86%85%E6%A0%B8%E6%A0%91%E5%9C%A8%E6%BA%90%E7%A0%81%E5%A4%96%E7%BC%96%E8%AF%91%E6%A8%A1%E5%9D%97-1"><span class="nav-number">2.</span> <span class="nav-text">1. 基于内核树在源码外编译模块</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#0-%E4%BD%BF%E8%83%BD%E6%9E%84%E5%BB%BA%E7%8E%AF%E5%A2%83"><span class="nav-number">2.1.</span> <span class="nav-text">(0) 使能构建环境</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%88%9B%E5%BB%BA%E8%87%AA%E5%AE%9A%E4%B9%89meta%E5%B1%82"><span class="nav-number">2.2.</span> <span class="nav-text">(1) 创建自定义meta层</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E6%B7%BB%E5%8A%A0%E5%B1%82%E5%88%B0%E6%9E%84%E5%BB%BA%E7%8E%AF%E5%A2%83"><span class="nav-number">2.3.</span> <span class="nav-text">(2) 添加层到构建环境</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E6%B7%BB%E5%8A%A0%E9%A9%B1%E5%8A%A8%E4%BB%A3%E7%A0%81%E6%A8%A1%E5%9D%97"><span class="nav-number">2.4.</span> <span class="nav-text">(3) 添加驱动代码模块</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E5%9C%A8%E7%9B%AE%E6%A0%87%E9%95%9C%E5%83%8F%E4%B8%AD%E5%8C%85%E5%90%AB%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9D%97"><span class="nav-number">2.5.</span> <span class="nav-text">(4) 在目标镜像中包含驱动模块</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-%E6%9E%84%E5%BB%BA%E9%95%9C%E5%83%8F"><span class="nav-number">2.6.</span> <span class="nav-text">(5) 构建镜像</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E7%A1%AE%E4%BF%9Dmeta-hello%E7%9A%84%E5%86%85%E5%AE%B9%E8%A2%AB%E5%8C%85%E5%90%AB"><span class="nav-number">2.6.1.</span> <span class="nav-text">（1）确保meta-hello的内容被包含</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%EF%BC%882%EF%BC%89%E7%BC%96%E8%AF%91%E9%95%9C%E5%83%8F"><span class="nav-number">2.6.2.</span> <span class="nav-text">（2）编译镜像</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%EF%BC%883%EF%BC%89%E7%BC%96%E8%AF%91%E5%AE%8C%E6%88%90"><span class="nav-number">2.6.3.</span> <span class="nav-text">（3）编译完成</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81%E5%86%85%E7%BC%96%E8%AF%91"><span class="nav-number">3.</span> <span class="nav-text">2. 内核源码内编译</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#0-%E4%BD%BF%E8%83%BD%E6%9E%84%E5%BB%BA%E7%8E%AF%E5%A2%83-1"><span class="nav-number">3.1.</span> <span class="nav-text">(0) 使能构建环境</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E6%9F%A5%E6%89%BE%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81"><span class="nav-number">3.2.</span> <span class="nav-text">(1) 查找内核源码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E6%8F%90%E5%8F%96%E5%86%85%E6%A0%B8%E6%BA%90%E7%A0%81"><span class="nav-number">3.3.</span> <span class="nav-text">(2) 提取内核源码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E6%B7%BB%E5%8A%A0hello-drv%E6%A8%A1%E5%9D%97"><span class="nav-number">3.4.</span> <span class="nav-text">(3) 添加hello_drv模块</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E6%89%A7%E8%A1%8Cmenuconfig%EF%BC%8C%E5%B0%86%E6%96%B0%E6%B7%BB%E5%8A%A0%E7%9A%84%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9D%97%E5%8B%BE%E9%80%89%E4%B8%8A"><span class="nav-number">3.5.</span> <span class="nav-text">(4) 执行menuconfig，将新添加的驱动模块勾选上</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-%E5%8D%95%E7%8B%AC%E7%BC%96%E8%AF%91linux%E5%86%85%E6%A0%B8%EF%BC%8C%E7%A1%AE%E4%BF%9D%E6%B7%BB%E5%8A%A0%E7%9A%84%E9%A9%B1%E5%8A%A8%E6%A8%A1%E5%9D%97%E6%B2%A1%E6%9C%89%E9%97%AE%E9%A2%98"><span class="nav-number">3.6.</span> <span class="nav-text">(5) 单独编译linux内核，确保添加的驱动模块没有问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-%E7%BC%96%E8%AF%91%E6%95%B4%E4%B8%AAimage"><span class="nav-number">3.7.</span> <span class="nav-text">(6) 编译整个image</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7-%E5%88%B6%E4%BD%9C%E8%A1%A5%E4%B8%81"><span class="nav-number">3.8.</span> <span class="nav-text">(7) 制作补丁</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#8-%E6%9E%84%E5%BB%BA%E9%95%9C%E5%83%8F"><span class="nav-number">3.9.</span> <span class="nav-text">(8) 构建镜像</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">yiyi_ll</p>
+  <div class="site-description" itemprop="description">非专业程序员，瞎折腾爱好者</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yiyi-ll" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yiyi-ll" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:lichao_ll@outlook.com" title="E-Mail → mailto:lichao_ll@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+    <div>
+        <canvas id="canvasDiyBlock" style="width:60%;">您的浏览器不支持 Canvas, 请更换浏览器!</canvas>
+        <script src="/js/clock.js"></script>
+    </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://yiyi-ll.github.io/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yiyi_ll">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="yiyi_ll">
+      <meta itemprop="description" content="非专业程序员，瞎折腾爱好者">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="yocto编译内核驱动 | yiyi_ll">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          yocto编译内核驱动
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-11-26 18:33:04" itemprop="dateCreated datePublished" datetime="2025-11-26T18:33:04+08:00">2025-11-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-11-27 19:33:09" itemprop="dateModified" datetime="2025-11-27T19:33:09+08:00">2025-11-27</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>1.2k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>4 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h3 id="0-内核模块编译方法"><a href="#0-内核模块编译方法" class="headerlink" title="0. 内核模块编译方法"></a>0. 内核模块编译方法</h3><h4 id="1-基于内核树在源码外编译模块"><a href="#1-基于内核树在源码外编译模块" class="headerlink" title="(1) 基于内核树在源码外编译模块"></a>(1) 基于内核树在源码外编译模块</h4><h4 id="2-内核源码内编译模块"><a href="#2-内核源码内编译模块" class="headerlink" title="(2) 内核源码内编译模块"></a>(2) 内核源码内编译模块</h4><span id="more"></span>
+
+<h3 id="1-基于内核树在源码外编译模块-1"><a href="#1-基于内核树在源码外编译模块-1" class="headerlink" title="1. 基于内核树在源码外编译模块"></a>1. 基于内核树在源码外编译模块</h3><h4 id="0-使能构建环境"><a href="#0-使能构建环境" class="headerlink" title="(0) 使能构建环境"></a>(0) 使能构建环境</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source oe-init-build-env</span><br></pre></td></tr></table></figure>
+
+<p>使能之后，会进入build目录下</p>
+<h4 id="1-创建自定义meta层"><a href="#1-创建自定义meta层" class="headerlink" title="(1) 创建自定义meta层"></a>(1) 创建自定义meta层</h4><p>在yocto的构建目录下，创建一个新的meta层</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bitbake-layers create-layer ../../meta-hello</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-添加层到构建环境"><a href="#2-添加层到构建环境" class="headerlink" title="(2) 添加层到构建环境"></a>(2) 添加层到构建环境</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bitbake-layers add-layer ../../meta-hello </span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">yocto/poky/build$ bitbake-layers show-layers</span><br><span class="line">NOTE: Starting bitbake server...</span><br><span class="line">layer                 path                                                                    priority</span><br><span class="line">========================================================================================================</span><br><span class="line">core                  /home/ll/Free/yocto/poky/meta                                           5</span><br><span class="line">yocto                 /home/ll/Free/yocto/poky/meta-poky                                      5</span><br><span class="line">yoctobsp              /home/ll/Free/yocto/poky/meta-yocto-bsp                                 5</span><br><span class="line">meta-hello            /home/ll/Free/yocto/meta-hello                                          6</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-添加驱动代码模块"><a href="#3-添加驱动代码模块" class="headerlink" title="(3) 添加驱动代码模块"></a>(3) 添加驱动代码模块</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yocto$ ls</span><br><span class="line">meta-arm  meta-hello  meta-openembedded  meta-renesas  meta-ros  meta-ros-publisher  poky</span><br></pre></td></tr></table></figure>
+
+<p><code>$ mkdir -p meta-hello/recipes-kernel/hello/files</code></p>
+<p>将hello_drv.c和Makefile添加到该目录下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">hello_drv.c</span><br><span class="line"></span><br><span class="line">  1 #include &lt;linux/kernel.h&gt;</span><br><span class="line">  2 #include &lt;linux/module.h&gt;</span><br><span class="line">  3 </span><br><span class="line">  4 static int __init hello_drv_init(void)</span><br><span class="line">  5 &#123;</span><br><span class="line">  6     pr_info(&quot;hello world drv!\r\n&quot;);</span><br><span class="line">  7     return 0;</span><br><span class="line">  8 &#125;</span><br><span class="line">  9 </span><br><span class="line"> 10 static void __exit hello_drv_exit(void)</span><br><span class="line"> 11 &#123;</span><br><span class="line"> 12     pr_info(&quot;good bye drv!\r\n&quot;);</span><br><span class="line"> 13 &#125;</span><br><span class="line"> 14 </span><br><span class="line"> 15 module_init(hello_drv_init);</span><br><span class="line"> 16 module_exit(hello_drv_exit);</span><br><span class="line"> 17 MODULE_LICENSE(&quot;GPL&quot;);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Makefile</span><br><span class="line"></span><br><span class="line">  1 obj-m := hello_drv.o</span><br><span class="line">  2</span><br><span class="line">  3 all:</span><br><span class="line">  4     (MAKE) -C (MAKE)−C(KERNEL_SRC) M=$(PWD) modules</span><br><span class="line">  5</span><br><span class="line">  6 modules_install:</span><br><span class="line">  7     (MAKE) -C (MAKE)−C(KERNEL_SRC) M=$(PWD) modules_install</span><br><span class="line">  8</span><br><span class="line">  9 clean:</span><br><span class="line"> 10     (MAKE) -C (MAKE)−C(KERNEL_SRC) M=$(PWD) clean</span><br></pre></td></tr></table></figure>
+
+<p>在 <code>meta-hello/recipes-kernel/hello</code>目录下创建hello.bb文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"> 1 SUMMARY = &quot;Example of how to build a Linux Kernel Module&quot;</span><br><span class="line"> 2 DESCRIPTION = &quot;$&#123;SUMMARY&#125;&quot;</span><br><span class="line"> 3 </span><br><span class="line"> 4 LICENSE = &quot;GPL-2.0-only&quot;</span><br><span class="line"> 5 LIC_FILES_CHKSUM = &quot;file://$&#123;COMMON_LICENSE_DIR&#125;/GPL-2.0-only;md5=801f80980d171dd6425610833a22dbe6&quot;</span><br><span class="line"> 6 </span><br><span class="line"> 7 inherit module</span><br><span class="line"> 8 </span><br><span class="line"> 9 SRC_URI = &quot;file://hello_drv.c \</span><br><span class="line">10            file://Makefile&quot;</span><br><span class="line">11 </span><br><span class="line">12 S = &quot;$&#123;WORKDIR&#125;&quot;</span><br><span class="line">13 </span><br><span class="line">14 UNPACKDIR = &quot;$&#123;S&#125;&quot;</span><br><span class="line">15 </span><br><span class="line">16 RPROVIDES:$&#123;PN&#125; += &quot;kernel-module-hello&quot;</span><br></pre></td></tr></table></figure>
+
+<p>meta-hello目录架构</p>
+<img src="/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image.png" class="">
+
+<h4 id="4-在目标镜像中包含驱动模块"><a href="#4-在目标镜像中包含驱动模块" class="headerlink" title="(4) 在目标镜像中包含驱动模块"></a>(4) 在目标镜像中包含驱动模块</h4><p>在meta&#x2F;conf&#x2F;machine&#x2F;qemux86-64.conf文件下添加驱动模块</p>
+<p><code>MACHINE_EXTRA_RRECOMMENDS = &quot;kernel-module-snd-ens1370 kernel-module-snd-rawmidi kernel-module-hello&quot;</code></p>
+<img src="/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-18.png" class="">
+
+<h4 id="5-构建镜像"><a href="#5-构建镜像" class="headerlink" title="(5) 构建镜像"></a>(5) 构建镜像</h4><h5 id="（1）确保meta-hello的内容被包含"><a href="#（1）确保meta-hello的内容被包含" class="headerlink" title="（1）确保meta-hello的内容被包含"></a>（1）确保meta-hello的内容被包含</h5><p>通过 <code>local.conf</code> 向 image 安装列表添加你的 package</p>
+<p>在 <code>build/conf/local.conf</code> 中加入：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IMAGE_INSTALL_append = &quot; hello&quot;</span><br></pre></td></tr></table></figure>
+
+<img src="/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-19.png" class="">
+
+<img src="/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-20.png" class="">
+
+<h5 id="（2）编译镜像"><a href="#（2）编译镜像" class="headerlink" title="（2）编译镜像"></a>（2）编译镜像</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yocto/poky/build$ bitbake core-image-minimal</span><br></pre></td></tr></table></figure>
+
+<img src="/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-17.png" class="">
+
+<h5 id="（3）编译完成"><a href="#（3）编译完成" class="headerlink" title="（3）编译完成"></a>（3）编译完成</h5><img src="/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-1.png" class="">
+
+<h3 id="2-内核源码内编译"><a href="#2-内核源码内编译" class="headerlink" title="2. 内核源码内编译"></a>2. 内核源码内编译</h3><h4 id="0-使能构建环境-1"><a href="#0-使能构建环境-1" class="headerlink" title="(0) 使能构建环境"></a>(0) 使能构建环境</h4><p><code>source oe-init-build-env</code></p>
+<p>使能之后，会进入build目录下</p>
+<h4 id="1-查找内核源码"><a href="#1-查找内核源码" class="headerlink" title="(1) 查找内核源码"></a>(1) 查找内核源码</h4><p><code>bitbake -s | grep linux</code></p>
+<img src="/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-2.png" class="">
+
+<h4 id="2-提取内核源码"><a href="#2-提取内核源码" class="headerlink" title="(2) 提取内核源码"></a>(2) 提取内核源码</h4><p><code>devtool modify linux-yocto-dev</code></p>
+<img src="/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-3.png" class="">
+
+<img src="/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-4.png" class="">
+
+<h4 id="3-添加hello-drv模块"><a href="#3-添加hello-drv模块" class="headerlink" title="(3) 添加hello_drv模块"></a>(3) 添加hello_drv模块</h4><img src="/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-5.png" class="">
+
+<p>hello_drv.c</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"> <span class="number">1</span> <span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/kernel.h&gt;</span></span></span><br><span class="line"> <span class="number">2</span> <span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"> <span class="number">3</span></span><br><span class="line"> <span class="number">4</span> <span class="type">static</span> <span class="type">int</span> __init <span class="title function_">hello_drv_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line"> 5 &#123;</span><br><span class="line"> <span class="number">6</span>     pr_info(<span class="string">&quot;hello world drv!\r\n&quot;</span>);</span><br><span class="line"> <span class="number">7</span>     <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"> <span class="number">8</span> &#125;</span><br><span class="line"> <span class="number">9</span></span><br><span class="line"><span class="number">10</span> <span class="type">static</span> <span class="type">void</span> __exit <span class="title function_">hello_drv_exit</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">11 &#123;</span><br><span class="line"><span class="number">12</span>     pr_info(<span class="string">&quot;good bye drv!\r\n&quot;</span>);</span><br><span class="line"><span class="number">13</span> &#125;</span><br><span class="line"><span class="number">14</span></span><br><span class="line"><span class="number">15</span> module_init(hello_drv_init);</span><br><span class="line"><span class="number">16</span> module_exit(hello_drv_exit);</span><br><span class="line"><span class="number">17</span> MODULE_LICENSE(<span class="string">&quot;GPL&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>Makefile</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span> obj-$(CONFIG_HELLO_DRV) += hello_drv.o</span><br></pre></td></tr></table></figure>
+
+<p>Kconfig</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span> config HELLO_DRV</span><br><span class="line"><span class="number">2</span>     tristate <span class="string">&quot;Create a hello world drv module&quot;</span></span><br><span class="line"><span class="number">3</span>     <span class="keyword">default</span> n</span><br><span class="line"><span class="number">4</span>     help</span><br><span class="line"><span class="number">5</span>         This is a module to print hello world drv</span><br></pre></td></tr></table></figure>
+
+<p>上层目录</p>
+<p>Makefile</p>
+<img src="/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-6.png" class="">
+
+<p>Kconfig</p>
+<img src="/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-7.png" class="">
+
+<img src="/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-8.png" class="">
+
+<h4 id="4-执行menuconfig，将新添加的驱动模块勾选上"><a href="#4-执行menuconfig，将新添加的驱动模块勾选上" class="headerlink" title="(4) 执行menuconfig，将新添加的驱动模块勾选上"></a>(4) 执行menuconfig，将新添加的驱动模块勾选上</h4><p><code>$ bitbake virtual/kernel -c menuconfig</code></p>
+<img src="/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-9.png" class="">
+
+<p><code>Device Drivers --&gt; Character devices --&gt; &lt;*&gt; Create a hello world drv module</code></p>
+<img src="/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-10.png" class="">
+
+<h4 id="5-单独编译linux内核，确保添加的驱动模块没有问题"><a href="#5-单独编译linux内核，确保添加的驱动模块没有问题" class="headerlink" title="(5) 单独编译linux内核，确保添加的驱动模块没有问题"></a>(5) 单独编译linux内核，确保添加的驱动模块没有问题</h4><p><code>$ devtool build linux-yocto-dev</code></p>
+<img src="/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-11.png" class="">
+
+<h4 id="6-编译整个image"><a href="#6-编译整个image" class="headerlink" title="(6) 编译整个image"></a>(6) 编译整个image</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line">$ devtool build-image core-image-sato</span><br><span class="line">NOTE: Starting bitbake server...</span><br><span class="line">Loading cache: <span class="number">100</span>% |#############################################################################################################################################################################| Time: <span class="number">0</span>:<span class="number">00</span>:<span class="number">04</span></span><br><span class="line">Loaded <span class="number">7290</span> entries from dependency cache.</span><br><span class="line">Parsing recipes: <span class="number">100</span>% |###########################################################################################################################################################################| Time: <span class="number">0</span>:<span class="number">00</span>:<span class="number">10</span></span><br><span class="line">Parsing of <span class="number">4778</span> .bb files <span class="title function_">complete</span> <span class="params">(<span class="number">4777</span> cached, <span class="number">1</span> parsed)</span>. 7291 targets, 321 skipped, 1 masked, 0 errors.</span><br><span class="line">WARNING: Skipping recipe linux-yocto-dev as it doesn&#x27;t produce a package with the same name</span><br><span class="line">WARNING: No recipes in workspace, building image core-image-sato unmodified</span><br><span class="line">NOTE: Reconnecting to bitbake server...</span><br><span class="line">Loading cache: 100% |#############################################################################################################################################################################| Time: 0:00:05</span><br><span class="line">Loaded 7290 entries from dependency cache.</span><br><span class="line">Parsing recipes: 100% |###########################################################################################################################################################################| Time: 0:00:08</span><br><span class="line">Parsing of 4778 .bb files <span class="title function_">complete</span> <span class="params">(<span class="number">4777</span> cached, <span class="number">1</span> parsed)</span>. 7291 targets, 321 skipped, 1 masked, 0 errors.</span><br><span class="line">NOTE: Resolving any missing task <span class="built_in">queue</span> dependencies</span><br><span class="line"></span><br><span class="line">Build Configuration:</span><br><span class="line">BB_VERSION           = <span class="string">&quot;2.12.0&quot;</span></span><br><span class="line">BUILD_SYS            = <span class="string">&quot;x86_64-linux&quot;</span></span><br><span class="line">NATIVELSBSTRING      = <span class="string">&quot;universal&quot;</span></span><br><span class="line">TARGET_SYS           = <span class="string">&quot;aarch64-poky-linux&quot;</span></span><br><span class="line">MACHINE              = <span class="string">&quot;radxa-zero-3e&quot;</span></span><br><span class="line">DISTRO               = <span class="string">&quot;poky&quot;</span></span><br><span class="line">DISTRO_VERSION       = <span class="string">&quot;5.2.1&quot;</span></span><br><span class="line">TUNE_FEATURES        = <span class="string">&quot;aarch64 crypto cortexa55&quot;</span></span><br><span class="line">TARGET_FPU           = <span class="string">&quot;&quot;</span></span><br><span class="line">DISTRO_NAME          = <span class="string">&quot;Poky (Yocto Project Reference Distro)&quot;</span></span><br><span class="line">ROS_DISTRO           = <span class="string">&quot;humble&quot;</span></span><br><span class="line">ROS_VERSION          = <span class="string">&quot;2&quot;</span></span><br><span class="line">ROS_PYTHON_VERSION   = <span class="string">&quot;3&quot;</span></span><br><span class="line">meta</span><br><span class="line">meta-poky</span><br><span class="line">meta-yocto-bsp</span><br><span class="line">meta-testlayer</span><br><span class="line">meta-hellmodlayer    = <span class="string">&quot;my-walnascar:ee0d8d8a61d8e22a3dd00c32cde58ee6e8ec458f&quot;</span></span><br><span class="line">meta-arm-toolchain</span><br><span class="line">meta-arm             = <span class="string">&quot;walnascar:c63ce2117ed9ad720c61a1e2df5d381ca1ac54a2&quot;</span></span><br><span class="line">meta-rockchip        = <span class="string">&quot;walnascar:d5b97e3d82a866272f7235b7c3904bc1b85eb4c0&quot;</span></span><br><span class="line">meta-oe</span><br><span class="line">meta-python          = <span class="string">&quot;walnascar:2169c9afcc0945045bea49f58011080942d4ddb4&quot;</span></span><br><span class="line">meta-ros-common</span><br><span class="line">meta-ros2</span><br><span class="line">meta-ros2-humble     = <span class="string">&quot;master:5fefe7f3c9e733321cb1786539a8c9c7571294cf&quot;</span></span><br><span class="line">workspace            = <span class="string">&quot;my-walnascar:ee0d8d8a61d8e22a3dd00c32cde58ee6e8ec458f&quot;</span></span><br><span class="line"></span><br><span class="line">WARNING: /home/root1/Work/yocto/poky/meta/recipes-kernel/linux/linux-yocto-dev.bb:do_compile is tainted from a forced run                                                                         | ETA:  <span class="number">0</span>:<span class="number">00</span>:<span class="number">01</span></span><br><span class="line">Sstate summary: Wanted <span class="number">26</span> Local <span class="number">13</span> Mirrors <span class="number">0</span> Missed <span class="number">13</span> Current <span class="number">6897</span> (<span class="number">50</span>% match, <span class="number">99</span>% complete)###################################################################################                  | ETA:  <span class="number">0</span>:<span class="number">00</span>:<span class="number">01</span></span><br><span class="line">Removing <span class="number">13</span> stale sstate objects <span class="keyword">for</span> arch radxa_zero_3e: <span class="number">100</span>% |###################################################################################################################################| Time: <span class="number">0</span>:<span class="number">00</span>:<span class="number">00</span></span><br><span class="line">NOTE: Executing Tasks</span><br><span class="line">NOTE: Tasks Summary: Attempted <span class="number">13952</span> tasks of which <span class="number">13931</span> didn<span class="string">&#x27;t need to be rerun and all succeeded.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Summary: There was 1 WARNING message.</span></span><br><span class="line"><span class="string">INFO: Successfully built core-image-sato. You can find output files in /home/root1/Work/yocto/poky/build/tmp/deploy/images/radxa-zero-3e</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="7-制作补丁"><a href="#7-制作补丁" class="headerlink" title="(7) 制作补丁"></a>(7) 制作补丁</h4><p><code>$ git status</code></p>
+<p>查看代码差异</p>
+<p><code>$ git add</code></p>
+<p><code>$ git commit -m &quot;xxx xxx xxx&quot;</code></p>
+<p>提交修改的代码</p>
+<img src="/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-12.png" class="">
+
+<p>创建layer目录</p>
+<p><code>$ bitbake-layers create-layer ../meta-hellodrvlayer</code></p>
+<img src="/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-13.png" class="">
+
+<p>添加layer目录</p>
+<p><code>$ bitbake-layers add-layer ../meta-hellodrvlayer</code></p>
+<img src="/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-14.png" class="">
+
+<img src="/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-15.png" class="">
+
+<p>制作补丁，并指定到layer文件夹</p>
+<p><code>$ devtool finish linux-yocto-dev ../meta-hellodrvlayer</code></p>
+<img src="/2025/11/26/yocto%E7%BC%96%E8%AF%91%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8/image-16.png" class="">
+
+<h4 id="8-构建镜像"><a href="#8-构建镜像" class="headerlink" title="(8) 构建镜像"></a>(8) 构建镜像</h4><p><code>bitbake core-image-sato</code></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/yocto/" rel="tag"># yocto</a>
+              <a href="/tags/linux-kernel/" rel="tag"># linux kernel</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/06/30/yocto%E7%BC%96%E8%AF%91ros2/" rel="prev" title="Yocto环境下编译ROS2、自定义layer添加ros代码以及ament_cmake和No module name &#39;ament_package&#39;问题解决">
+                  <i class="fa fa-angle-left"></i> Yocto环境下编译ROS2、自定义layer添加ros代码以及ament_cmake和No module name 'ament_package'问题解决
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  
+  <div class="comments giscus-container">
+  </div>
+  
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">yiyi_ll</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">3k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">12 分钟</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div><!-- 加入 Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<link rel="stylesheet" href="/css/runtime-counter.css">
+<div id="runtime-box">
+  <i class="fa fa-clock-o"></i>
+  <span id="runtime">加载中...</span>
+</div>
+<script src="/js/runtime-counter.js"></script>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="giscus" type="application/json">{"enable":true,"repo":"yiyi-ll/yiyi-ll.github.io","repo_id":"R_kgDOO751Vw","category":"Announcements","category_id":"DIC_kwDOO751V84CrhWs","mapping":"pathname","strict":0,"reactions_enabled":1,"emit_metadata":1,"theme":"light_high_contrast","lang":"zh-CN","crossorigin":"anonymous","input_position":"bottom","loading":"lazy"}</script>
+
+<script>
+document.addEventListener('page:loaded', () => {
+  if (!CONFIG.page.comments) return;
+
+  NexT.utils.loadComments('.giscus-container')
+    .then(() => NexT.utils.getScript('https://giscus.app/client.js', {
+      attributes: {
+        async                   : true,
+        crossOrigin             : 'anonymous',
+        'data-repo'             : CONFIG.giscus.repo,
+        'data-repo-id'          : CONFIG.giscus.repo_id,
+        'data-category'         : CONFIG.giscus.category,
+        'data-category-id'      : CONFIG.giscus.category_id,
+        'data-mapping'          : CONFIG.giscus.mapping,
+        'data-strict'           : CONFIG.giscus.strict,
+        'data-reactions-enabled': CONFIG.giscus.reactions_enabled,
+        'data-emit-metadata'    : CONFIG.giscus.emit_metadata,
+        'data-theme'            : CONFIG.giscus.theme,
+        'data-lang'             : CONFIG.giscus.lang,
+        'data-input-position'   : CONFIG.giscus.input_position,
+        'data-loading'          : CONFIG.giscus.loading
+      },
+      parentNode: document.querySelector('.giscus-container')
+    }));
+});
+</script>
+
+</body>
+</html>
